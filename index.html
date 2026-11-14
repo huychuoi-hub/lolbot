@@ -1,22 +1,64 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>LolBot Coin</title>
 <style>
-:root{--bg:#0f1220;--card:#1a1f36;--tx:#eef0ff;--mu:#9aa3c7;--ac:#6c7bff;--ok:#38d39f}
+:root{--bg:#0f1220;--card:#1a1f36;--tx:#eef0ff;--mu:#9aa3c7;--ac:#6c7bff;--ok:#38d39f;--bad:#ff5c7a;--gold:#ffcc4d}
 @media(prefers-color-scheme:light){:root{--bg:#f3f5ff;--card:#fff;--tx:#161a33;--mu:#5d6590}}
-*{box-sizing:border-box}body{margin:0;padding:16px;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
-main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-size:18px}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
+main{max-width:680px;margin:0 auto}
+h1{margin:8px 0}
+h2{margin:20px 0 4px;font-size:18px}
+h3{margin:0 0 6px;font-size:16px}
 .card{background:var(--card);border-radius:16px;padding:16px;margin:10px 0;box-shadow:0 2px 12px #0003}
-.row{display:flex;align-items:center;gap:12px}.row>div:nth-child(2){flex:1}.mu{color:var(--mu);margin:2px 0;font-size:14px}
-.big{font-size:26px;font-weight:700;color:var(--ok)}#av{border-radius:50%;background:#0003}
-.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;min-width:110px}
-.btn:disabled{opacity:.5;cursor:default}.panel{margin-top:10px}.qs{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:12px}.row>div:nth-child(2){flex:1}
+.mu{color:var(--mu);margin:2px 0;font-size:14px}
+.big{font-size:26px;font-weight:700;color:var(--ok)}
+#av{border-radius:50%;background:#0003}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;min-width:90px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.alt{background:#38b28e}
+.btn.danger{background:#e74c3c}
+.btn.gold{background:var(--gold);color:#222}
+.panel{margin-top:10px}
+.qs{display:grid;gap:8px}
 .qs input{width:100px;padding:8px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit}
-.track{position:relative;height:36px;margin:22px 0}.track i{position:absolute;top:0;bottom:0;width:8px;margin-left:-4px;background:var(--ok);border-radius:4px;opacity:.85}
+.track{position:relative;height:36px;margin:22px 0}
+.track i{position:absolute;top:0;bottom:0;width:8px;margin-left:-4px;background:var(--ok);border-radius:4px;opacity:.85}
 .track input{position:absolute;inset:0;width:100%;margin:0;accent-color:var(--ac)}
-#log{list-style:none;margin:10px 0;font-size:14px}#log li{padding:4px 0;border-bottom:1px solid #8883}
-#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ac);color:#fff;padding:12px 18px;border-radius:12px;transition:.3s;max-width:90%}
+#log{list-style:none;margin:10px 0;font-size:14px;padding:0 16px}
+#log li{padding:4px 0;border-bottom:1px solid #8883}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ac);color:#fff;padding:12px 18px;border-radius:12px;transition:.3s;max-width:90%;z-index:99;text-align:center}
 #toast.on{transform:translate(-50%,0)}
-.spin{width:28px;height:28px;border:3px solid var(--mu);border-top-color:var(--ac);border-radius:50%;animation:r 1s linear infinite;margin-top:8px}@keyframes r{to{transform:rotate(360deg)}}
+.spin{width:28px;height:28px;border:3px solid var(--mu);border-top-color:var(--ac);border-radius:50%;animation:r 1s linear infinite;margin-top:8px}
+@keyframes r{to{transform:rotate(360deg)}}
+[hidden]{display:none!important}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px;margin:12px 0;background:var(--card);border-radius:12px;box-shadow:0 2px 12px #0003;scrollbar-width:thin}
+.tabs button{flex:0 0 auto;background:transparent;color:var(--tx);border:0;padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--ac);color:#fff}
+.tab-panel{animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Games */
+.stage{display:flex;justify-content:center;align-items:center;gap:12px;padding:14px 0;min-height:80px}
+.coin{font-size:52px;display:inline-block;line-height:1;transition:transform .8s}
+.coin.flip{animation:flip .6s linear infinite}
+@keyframes flip{to{transform:rotateY(360deg)}}
+.die{font-size:44px;display:inline-block;line-height:1}
+.stage.shake .die{animation:shake .3s linear infinite}
+@keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-3px,-3px)}50%{transform:translate(3px,3px)}75%{transform:translate(-3px,3px)}}
+.bet-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.bet-row input{padding:8px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit;flex:1;min-width:80px}
+.animals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.animals button{background:var(--bg);color:var(--tx);border:1px solid var(--mu);border-radius:10px;padding:10px;font:inherit;cursor:pointer}
+.animals button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.wheel{width:120px;height:120px;border-radius:50%;margin:0 auto;position:relative;
+  background:conic-gradient(var(--ac) 0 45deg,#38d39f 45deg 90deg,#ffb84d 90deg 135deg,#ff6b6b 135deg 180deg,#9d6cff 180deg 225deg,#3cc6ff 225deg 270deg,#ffd93c 270deg 315deg,#ff8ac1 315deg 360deg)}
+.wheel::after{content:"";position:absolute;inset:38%;background:var(--card);border-radius:50%}
+.wheel::before{content:"▼";position:absolute;top:-18px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:16px}
+.board-row{padding:8px 0;border-bottom:1px solid #8883}
+.rank{min-width:32px;text-align:center;color:var(--gold);font-weight:700}
 </style></head><body><main>
 <h1>🪙 LolBot Coin</h1>
 <div id="load" class="card"><p id="lmsg">Đang kiểm tra link...</p><div id="spin" class="spin"></div></div>
@@ -25,33 +67,195 @@ main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-siz
 <div id="slw"><p>Xác minh bạn không phải robot: kéo thanh trượt tới <b style="color:var(--ok)">vạch xanh</b>.</p>
 <div class="track"><i id="mk"></i><input type="range" id="sl" min="0" max="100" value="0"></div></div><div id="ts"></div>
 <input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p></div>
+
 <div id="app" hidden>
-<div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span id="coins">0</span></div></div>
-<h2>Nhiệm vụ</h2><div id="ms"></div>
-<h2>Lịch sử nhận xu</h2><ul id="log" class="card"></ul></div>
+  <div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span class="coins">0</span></div></div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="home" class="on">🏠 Trang chủ</button>
+    <button data-tab="missions">🎯 Nhiệm vụ</button>
+    <button data-tab="play">🎮 Chơi</button>
+    <button data-tab="board">🏆 BXH</button>
+    <button data-tab="manage">⚙️ Quản lý</button>
+    <button data-tab="history">📜 Lịch sử</button>
+  </nav>
+
+  <!-- HOME -->
+  <section id="tab-home" class="tab-panel">
+    <div class="card">
+      <h3>👋 Chào mừng, <span id="home-name">bạn</span>!</h3>
+      <p class="mu">Cảm ơn bạn đã đồng hành cùng LolBot Coin.</p>
+      <div class="big">🪙 <span class="coins">0</span></div>
+      <p class="mu">xu hiện có</p>
+    </div>
+    <div class="card">
+      <h3>Thống kê nhanh</h3>
+      <p>Tổng nhiệm vụ: <b id="home-missions">0</b></p>
+      <p>Lần nhận gần đây: <b id="home-last">—</b></p>
+    </div>
+    <div class="card">
+      <h3>Điều hướng nhanh</h3>
+      <div class="bet-row">
+        <button class="btn" data-goto="missions">🎯 Nhiệm vụ</button>
+        <button class="btn alt" data-goto="play">🎮 Chơi game</button>
+        <button class="btn gold" data-goto="board">🏆 Xem BXH</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISSIONS -->
+  <section id="tab-missions" class="tab-panel" hidden>
+    <h2>Nhiệm vụ</h2>
+    <div id="ms"></div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="tab-play" class="tab-panel" hidden>
+    <h2>🎮 Sòng bạc LolBot</h2>
+    <p class="mu">Đặt cược xu để chơi. Kết quả do server xử lý công bằng.</p>
+
+    <div class="card game" id="game-coin">
+      <h3>🪙 Tung xu</h3>
+      <p class="mu">Đoán mặt xu. Thắng x2 tiền cược.</p>
+      <div class="stage"><span class="coin">🪙</span></div>
+      <div class="bet-row">
+        <input type="number" class="bet" min="1" placeholder="Số xu cược">
+        <button class="btn" data-choice="head">Sấp</button>
+        <button class="btn alt" data-choice="tail">Ngửa</button>
+      </div>
+    </div>
+
+    <div class="card game" id="game-dice">
+      <h3>🎲 Tài Xỉu</h3>
+      <p class="mu">3 xúc xắc. Tài: 11-17, Xỉu: 4-10. Thắng x2.</p>
+      <div class="stage" id="dice-stage"><span class="die">⚀</span><span class="die">⚀</span><span class="die">⚀</span></div>
+      <div class="bet-row">
+        <input type="number" class="bet" min="1" placeholder="Số xu cược">
+        <button class="btn" data-choice="tai">Tài</button>
+        <button class="btn alt" data-choice="xiu">Xỉu</button>
+      </div>
+    </div>
+
+    <div class="card game" id="game-wheel">
+      <h3>🎡 Vòng quay may mắn</h3>
+      <p class="mu">Quay để nhận phần thưởng từ x0 đến x5.</p>
+      <div class="stage"><div class="wheel" id="wheel"></div></div>
+      <div class="bet-row">
+        <input type="number" class="bet" min="1" placeholder="Số xu cược">
+        <button class="btn gold" id="wheel-btn">Quay</button>
+      </div>
+    </div>
+
+    <div class="card game" id="game-guess">
+      <h3>🔢 Đoán số</h3>
+      <p class="mu">Đoán đúng số 1-100 sẽ thắng x50 tiền cược.</p>
+      <div class="bet-row">
+        <input type="number" class="bet" min="1" placeholder="Số xu cược">
+        <input type="number" class="guess" min="1" max="100" placeholder="Số 1-100">
+        <button class="btn" id="guess-btn">Đoán</button>
+      </div>
+    </div>
+
+    <div class="card game" id="game-baucua">
+      <h3>🦀 Bầu cua</h3>
+      <p class="mu">Chọn 1 linh vật rồi đổ xúc xắc. Thắng x3 nếu trùng.</p>
+      <div class="stage" id="bc-stage"><span class="die">🥥</span><span class="die">🥥</span><span class="die">🥥</span></div>
+      <div class="animals" id="bc-animals">
+        <button data-a="bau">🥥 Bầu</button>
+        <button data-a="cua">🦀 Cua</button>
+        <button data-a="tom">🦐 Tôm</button>
+        <button data-a="ca">🐟 Cá</button>
+        <button data-a="ga">🐔 Gà</button>
+        <button data-a="nai">🦌 Nai</button>
+      </div>
+      <div class="bet-row" style="margin-top:10px">
+        <input type="number" class="bet" min="1" placeholder="Số xu cược">
+        <button class="btn gold" id="bc-btn">Đổ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOARD -->
+  <section id="tab-board" class="tab-panel" hidden>
+    <h2>🏆 Bảng xếp hạng</h2>
+    <div id="board" class="card"><p class="mu">Đang tải...</p></div>
+  </section>
+
+  <!-- MANAGE -->
+  <section id="tab-manage" class="tab-panel" hidden>
+    <h2>⚙️ Quản lý</h2>
+    <div class="card">
+      <h3>Hồ sơ</h3>
+      <p>Tên: <b id="m-name">—</b></p>
+      <p>ID: <b id="m-id">—</b></p>
+      <p>Số dư: <b>🪙 <span class="coins">0</span></b></p>
+    </div>
+    <div class="card">
+      <h3>Đổi mã quà tặng</h3>
+      <div class="bet-row">
+        <input type="text" id="gift-code" placeholder="Nhập mã quà tặng">
+        <button class="btn" id="redeem-btn">Đổi</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Khác</h3>
+      <button class="btn danger" id="logout-btn">Đăng xuất</button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history" class="tab-panel" hidden>
+    <h2>📜 Lịch sử nhận xu</h2>
+    <ul id="log" class="card"></ul>
+  </section>
+</div>
 <div id="toast"></div></main>
 <script>
 // Nếu có địa chỉ API cố định (không đổi), điền vào đây. Để trống = đọc từ link bot gửi (#api=...).
 const FIXED_API="";
 const OKH=/^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|ngrok-free\.app|ngrok-free\.dev|ngrok\.app|ngrok\.io|loca\.lt)$/i;
 const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
 let API=FIXED_API,link,auth,me,shown=0,t0=0,trace=[];const ready={},busy={};
+let refreshIv=null,tickIv=null;
 const fmt=n=>n.toLocaleString("vi-VN");
 const fmtT=s=>s>=3600?`${Math.floor(s/3600)}g ${Math.floor(s%3600/60)}p`:s>=60?`${Math.floor(s/60)}p ${s%60}s`:`${s}s`;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DICE=["⚀","⚁","⚂","⚃","⚄","⚅"];
+const ANIMALS={bau:"🥥",cua:"🦀",tom:"🦐",ca:"🐟",ga:"🐔",nai:"🦌"};
+const ANIMAL_NAMES={bau:"Bầu",cua:"Cua",tom:"Tôm",ca:"Cá",ga:"Gà",nai:"Nai"};
+
 function show(id){["load","cap","login","app"].forEach(x=>$("#"+x).hidden=x!==id)}
 function fail(m){show("load");$("#lmsg").textContent=m;$("#spin").hidden=true}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),3500)}
+
 async function call(path,data,tok){
   try{
     const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json","ngrok-skip-browser-warning":"1",...(tok?{Authorization:"Bearer "+tok}:{})},body:JSON.stringify(data||{})});
     const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Lỗi "+r.status);return j;
   }catch(e){if(e instanceof TypeError)throw new Error("Không kết nối được tới bot (bot đang tắt hoặc tunnel hết hạn).");throw e}
 }
+
+/* ============ TABS ============ */
+function switchTab(name){
+  $$("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===name));
+  $$(".tab-panel").forEach(p=>p.hidden=p.id!=="tab-"+name);
+  if(name==="board")loadBoard();
+}
+$("#tabs").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-tab]");if(b)switchTab(b.dataset.tab);
+});
+$("#tab-home").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-goto]");if(b)switchTab(b.dataset.goto);
+});
+
+/* ============ MISSIONS ============ */
 function begin(r){
   link={id:r.id,code:r.code};$("#hello").textContent="Xin chào, "+r.name+"!";
   if(r.state==="ready"){auth=r.auth;start()}else captcha(r);
 }
 function showLogin(msg){show("login");$("#lerr").textContent=msg||""}
+
 async function boot(){
   const h=new URLSearchParams(location.hash.slice(1)).get("api");
   if(!API&&h&&OKH.test(h)){API=h;try{localStorage.setItem("api",h)}catch{}}
@@ -67,6 +271,7 @@ async function boot(){
   }else if(q.get("state")&&(q.get("code")||q.get("error")))oauthBack(q);
   else showLogin();
 }
+
 async function oauthBack(q){
   history.replaceState(null,"",location.pathname);
   const st=sessionStorage.getItem("oauth_state");sessionStorage.removeItem("oauth_state");
@@ -75,6 +280,7 @@ async function oauthBack(q){
   if(!API)return showLogin("Thiếu địa chỉ API của bot.");
   try{begin(await call("/api/oauth",{code:q.get("code")}))}catch(e){showLogin(e.message)}
 }
+
 $("#dc").onclick=async()=>{
   if(!API)return showLogin("Chưa biết địa chỉ API của bot. Hãy mở web bằng lệnh /web trước (hoặc đặt FIXED_API trong file).");
   try{
@@ -85,6 +291,7 @@ $("#dc").onclick=async()=>{
     location.href="https://discord.com/oauth2/authorize?"+new URLSearchParams({client_id:c.client_id,response_type:"code",redirect_uri:c.redirect_uri,scope:"identify",state:st,prompt:"none"});
   }catch(e){showLogin(e.message)}
 };
+
 let tsId=null;
 function loadTs(){return window.turnstile?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement("script");e.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";e.onload=ok;e.onerror=no;document.head.append(e)})}
 function captcha(r){
@@ -109,25 +316,53 @@ $("#sl").addEventListener("change",async e=>{
     else{$("#cmsg").textContent=r.error;captcha({mode:"slider",target:r.target})}
   }catch(err){$("#cmsg").textContent=err.message}
 });
-async function start(){show("app");await refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);setInterval(tick,1000)}
-function animate(to){const from=shown,t=performance.now();shown=to;(function f(n){const k=Math.min(1,(n-t)/600);$("#coins").textContent=fmt(Math.round(from+(to-from)*k));if(k<1)requestAnimationFrame(f)})(t)}
+
+async function start(){
+  show("app");switchTab("home");
+  await refresh();
+  if(refreshIv)clearInterval(refreshIv);if(tickIv)clearInterval(tickIv);
+  refreshIv=setInterval(()=>{if(!document.hidden)refresh()},5000);
+  tickIv=setInterval(tick,1000);
+}
+
+function animate(to){
+  const from=shown,t=performance.now();shown=to;
+  (function f(n){
+    const k=Math.min(1,(n-t)/600),v=Math.round(from+(to-from)*k);
+    $$(".coins").forEach(el=>el.textContent=fmt(v));
+    if(k<1)requestAnimationFrame(f);
+  })(t);
+}
+
 async function refresh(){
+  if(!auth)return;
   try{me=await call("/api/me",{},auth)}catch(e){return toast(e.message)}
   $("#name").textContent=me.name;
+  const hn=$("#home-name");if(hn)hn.textContent=me.name;
+  const mn=$("#m-name");if(mn)mn.textContent=me.name;
+  const mi=$("#m-id");if(mi)mi.textContent=me.id||"—";
   if(/^https:\/\/cdn\.discordapp\.com\//.test(me.avatar))$("#av").src=me.avatar;
   if(me.coins!==shown)animate(me.coins);
   if(!$("#ms").children.length)me.missions.forEach(card);
   me.missions.forEach(m=>ready[m.key]=Date.now()+m.ready_in*1000);
+  const hm=$("#home-missions");if(hm)hm.textContent=me.missions.length;
+  const hl=$("#home-last");if(hl)hl.textContent=(me.log&&me.log[0])?me.log[0].w:"—";
   $("#log").replaceChildren(...me.log.map(l=>{const li=document.createElement("li");li.textContent=`${new Date(l.t*1000).toLocaleTimeString("vi-VN")} · ${l.w}: +${l.n} xu`;return li}));
   tick();
 }
+
 function card(m){
   const d=document.createElement("div");d.className="card m";d.id="m_"+m.key;
   d.innerHTML='<div class="row"><div><b></b><p class="mu"></p></div><button class="btn"></button></div><div class="panel"></div>';
   d.querySelector("b").textContent=m.title;d.querySelector("p").textContent=m.desc;
   d.querySelector("button").onclick=()=>act(m.key);$("#ms").append(d);
 }
-function tick(){document.querySelectorAll(".m").forEach(d=>{const k=d.id.slice(2),s=Math.ceil(((ready[k]||0)-Date.now())/1000),b=d.querySelector("button");b.disabled=s>0||!!busy[k];b.textContent=s>0?fmtT(s):"Làm ngay"})}
+function tick(){
+  $$(".m").forEach(d=>{
+    const k=d.id.slice(2),s=Math.ceil(((ready[k]||0)-Date.now())/1000),b=d.querySelector("button");
+    b.disabled=s>0||!!busy[k];b.textContent=s>0?fmtT(s):"Làm ngay";
+  });
+}
 async function act(k){
   const p=$("#m_"+k+" .panel"),post=a=>call("/api/mission",{name:k,action:a},auth);
   try{
@@ -148,5 +383,145 @@ async function claim(k,extra,p){
   try{const r=await call("/api/mission",{name:k,action:"claim",...extra},auth);toast("🎉 "+r.msg)}catch(e){toast(e.message)}
   busy[k]=0;p.replaceChildren();refresh();
 }
+
+/* ============ LEADERBOARD ============ */
+async function loadBoard(){
+  const el=$("#board");el.innerHTML='<p class="mu">Đang tải...</p>';
+  try{
+    const r=await call("/api/leaderboard",{},auth);
+    const list=r.list||[];
+    if(!list.length){el.innerHTML='<p class="mu">Chưa có dữ liệu.</p>';return}
+    el.innerHTML="";
+    list.slice(0,50).forEach((u,i)=>{
+      const row=document.createElement("div");row.className="row board-row";
+      const rank=document.createElement("b");rank.className="rank";
+      rank.textContent=["🥇","🥈","🥉"][i]||("#"+(i+1));
+      row.append(rank);
+      const av=document.createElement("img");av.width=av.height=32;av.style.borderRadius="50%";av.style.background="#0003";
+      if(u.avatar&&/^https:\/\/cdn\.discordapp\.com\//.test(u.avatar))av.src=u.avatar;
+      row.append(av);
+      const nm=document.createElement("div");nm.style.flex="1";nm.textContent=u.name||"?";
+      row.append(nm);
+      const c=document.createElement("b");c.textContent="🪙 "+fmt(u.coins||0);
+      row.append(c);
+      el.append(row);
+    });
+  }catch(e){
+    el.innerHTML="";
+    const p=document.createElement("p");p.className="mu";p.textContent=e.message;el.append(p);
+  }
+}
+
+/* ============ MANAGE ============ */
+$("#redeem-btn").onclick=async()=>{
+  const code=$("#gift-code").value.trim();
+  if(!code)return toast("Nhập mã quà tặng");
+  try{
+    const r=await call("/api/redeem",{code},auth);
+    if(typeof r.coins==="number"&&r.coins!==shown)animate(r.coins);
+    toast(r.msg||"Đổi mã thành công!");
+    $("#gift-code").value="";
+  }catch(e){toast(e.message)}
+};
+$("#logout-btn").onclick=()=>{
+  auth=null;me=null;shown=0;
+  try{sessionStorage.clear()}catch{}
+  $("#ms").innerHTML="";$("#log").innerHTML="";
+  show("login");$("#lerr").textContent="Bạn đã đăng xuất.";
+};
+
+/* ============ GAMES ============ */
+async function apiGame(game,payload){
+  try{
+    const r=await call("/api/game",{game,...payload},auth);
+    if(typeof r.coins==="number"&&r.coins!==shown)animate(r.coins);
+    return r;
+  }catch(e){toast(e.message);return null}
+}
+
+// Coin flip
+$$("#game-coin [data-choice]").forEach(btn=>{
+  btn.onclick=async()=>{
+    const bet=+$("#game-coin .bet").value;
+    if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
+    const coin=$("#game-coin .coin");
+    coin.classList.add("flip");
+    const r=await apiGame("coin",{bet,choice:btn.dataset.choice});
+    await sleep(900);
+    coin.classList.remove("flip");
+    if(r){
+      coin.textContent=r.result==="tail"?"🔘":"🪙";
+      toast(r.msg||(r.win?`🎉 Thắng +${r.payout} xu`:`😢 Thua -${bet} xu`));
+    }
+  };
+});
+
+// Dice (Tài Xỉu)
+$$("#game-dice [data-choice]").forEach(btn=>{
+  btn.onclick=async()=>{
+    const bet=+$("#game-dice .bet").value;
+    if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
+    const stage=$("#dice-stage");
+    stage.classList.add("shake");
+    const r=await apiGame("dice",{bet,choice:btn.dataset.choice});
+    await sleep(900);
+    stage.classList.remove("shake");
+    if(r){
+      if(Array.isArray(r.dice))stage.querySelectorAll(".die").forEach((d,i)=>{d.textContent=DICE[(r.dice[i]||1)-1]});
+      toast(r.msg||(r.win?`🎉 Thắng +${r.payout} xu`:`😢 Thua -${bet} xu`));
+    }
+  };
+});
+
+// Wheel
+$("#wheel-btn").onclick=async()=>{
+  const bet=+$("#game-wheel .bet").value;
+  if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
+  const wheel=$("#wheel");
+  wheel.style.transition="none";
+  wheel.style.transform="rotate(0deg)";
+  void wheel.offsetWidth;
+  const spins=3+Math.random()*2;
+  wheel.style.transition="transform 2.5s cubic-bezier(.15,.7,.2,1)";
+  wheel.style.transform=`rotate(${360*spins}deg)`;
+  const r=await apiGame("wheel",{bet});
+  await sleep(2600);
+  if(r)toast(r.msg||`🎡 Nhận được ${r.payout||0} xu!`);
+};
+
+// Guess
+$("#guess-btn").onclick=async()=>{
+  const root=$("#game-guess");
+  const bet=+root.querySelector(".bet").value;
+  const guess=+root.querySelector(".guess").value;
+  if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
+  if(!guess||guess<1||guess>100)return toast("Nhập số từ 1 đến 100");
+  const r=await apiGame("guess",{bet,guess});
+  if(r)toast(r.msg||(r.win?`🎉 Đúng! +${r.payout} xu`:`😢 Sai rồi! Số đúng: ${r.answer}`));
+};
+
+// Bầu cua
+let bcChoice=null;
+$$("#bc-animals button").forEach(btn=>{
+  btn.onclick=()=>{
+    bcChoice=btn.dataset.a;
+    $$("#bc-animals button").forEach(x=>x.classList.toggle("on",x===btn));
+  };
+});
+$("#bc-btn").onclick=async()=>{
+  if(!bcChoice)return toast("Chọn 1 linh vật trước");
+  const bet=+$("#game-baucua .bet").value;
+  if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
+  const stage=$("#bc-stage");
+  stage.classList.add("shake");
+  const r=await apiGame("baucua",{bet,choice:bcChoice});
+  await sleep(900);
+  stage.classList.remove("shake");
+  if(r){
+    if(Array.isArray(r.dice))stage.querySelectorAll(".die").forEach((d,i)=>{d.textContent=ANIMALS[r.dice[i]]||"❓"});
+    toast(r.msg||(r.win?`🎉 Thắng +${r.payout} xu`:`😢 Thua -${bet} xu`));
+  }
+};
+
 boot();
 </script></body></html>
