@@ -6,9 +6,7 @@
 *{box-sizing:border-box}
 body{margin:0;padding:16px;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
 main{max-width:680px;margin:0 auto}
-h1{margin:8px 0}
-h2{margin:20px 0 4px;font-size:18px}
-h3{margin:0 0 6px;font-size:16px}
+h1{margin:8px 0}h2{margin:20px 0 4px;font-size:18px}h3{margin:0 0 6px;font-size:16px}
 .card{background:var(--card);border-radius:16px;padding:16px;margin:10px 0;box-shadow:0 2px 12px #0003}
 .row{display:flex;align-items:center;gap:12px}.row>div:nth-child(2){flex:1}
 .mu{color:var(--mu);margin:2px 0;font-size:14px}
@@ -16,9 +14,7 @@ h3{margin:0 0 6px;font-size:16px}
 #av{border-radius:50%;background:#0003}
 .btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;min-width:90px}
 .btn:disabled{opacity:.5;cursor:default}
-.btn.alt{background:#38b28e}
-.btn.danger{background:#e74c3c}
-.btn.gold{background:var(--gold);color:#222}
+.btn.alt{background:#38b28e}.btn.danger{background:#e74c3c}.btn.gold{background:var(--gold);color:#222}
 .panel{margin-top:10px}
 .qs{display:grid;gap:8px}
 .qs input{width:100px;padding:8px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit}
@@ -27,22 +23,18 @@ h3{margin:0 0 6px;font-size:16px}
 .track input{position:absolute;inset:0;width:100%;margin:0;accent-color:var(--ac)}
 #log{list-style:none;margin:10px 0;font-size:14px;padding:0 16px}
 #log li{padding:4px 0;border-bottom:1px solid #8883}
-#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ac);color:#fff;padding:12px 18px;border-radius:12px;transition:.3s;max-width:90%;z-index:99;text-align:center;box-shadow:0 4px 18px #0006}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ac);color:#fff;padding:12px 18px;border-radius:12px;transition:.3s;max-width:90%;z-index:99;text-align:center;box-shadow:0 4px 18px #0006;white-space:pre-wrap}
 #toast.on{transform:translate(-50%,0)}
 .spin{width:28px;height:28px;border:3px solid var(--mu);border-top-color:var(--ac);border-radius:50%;animation:r 1s linear infinite;margin-top:8px}
 @keyframes r{to{transform:rotate(360deg)}}
 [hidden]{display:none!important}
-
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:6px;margin:12px 0;background:var(--card);border-radius:12px;box-shadow:0 2px 12px #0003;scrollbar-width:thin}
 .tabs button{flex:0 0 auto;background:transparent;color:var(--tx);border:0;padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap}
 .tabs button.on{background:var(--ac);color:#fff}
-.tab-panel{animation:fade .2s}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
+.tab-panel{animation:fade .2s}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .stage{display:flex;justify-content:center;align-items:center;gap:12px;padding:14px 0;min-height:80px}
 .coin{font-size:52px;display:inline-block;line-height:1;transition:transform .8s}
-.coin.flip{animation:flip .6s linear infinite}
-@keyframes flip{to{transform:rotateY(360deg)}}
+.coin.flip{animation:flip .6s linear infinite}@keyframes flip{to{transform:rotateY(360deg)}}
 .die{font-size:44px;display:inline-block;line-height:1}
 .stage.shake .die{animation:shake .3s linear infinite}
 @keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-3px,-3px)}50%{transform:translate(3px,3px)}75%{transform:translate(-3px,3px)}}
@@ -59,6 +51,7 @@ h3{margin:0 0 6px;font-size:16px}
 .rank{min-width:36px;text-align:center;color:var(--gold);font-weight:700}
 .avat{width:32px;height:32px;border-radius:50%;background:#0003;flex:0 0 auto}
 .coinbar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.diag{font:12px monospace;white-space:pre-wrap;background:#0003;padding:8px;border-radius:8px;margin-top:8px;color:var(--mu);max-height:220px;overflow:auto}
 </style></head><body><main>
 <h1>🪙 LolBot Coin</h1>
 <div id="load" class="card"><p id="lmsg">Đang kiểm tra link...</p><div id="spin" class="spin"></div></div>
@@ -80,21 +73,14 @@ h3{margin:0 0 6px;font-size:16px}
     <button data-tab="history">📜 Lịch sử</button>
   </nav>
 
-  <!-- HOME -->
   <section id="tab-home" class="tab-panel">
     <div class="card">
       <h3>👋 Chào mừng, <span id="home-name">bạn</span>!</h3>
-      <p class="mu">Cảm ơn bạn đã đồng hành cùng LolBot Coin.</p>
+      <p class="mu">Kiếm xu bằng nhiệm vụ, rồi thử vận may ở tab Chơi.</p>
       <div class="big">🪙 <span class="coins">0</span></div>
       <p class="mu">xu hiện có</p>
     </div>
-    <div class="card">
-      <h3>Thống kê nhanh</h3>
-      <p>Tổng nhiệm vụ: <b id="home-missions">0</b></p>
-      <p>Lần nhận gần đây: <b id="home-last">—</b></p>
-    </div>
-    <div class="card">
-      <h3>Điều hướng nhanh</h3>
+    <div class="card"><h3>Điều hướng nhanh</h3>
       <div class="bet-row">
         <button class="btn" data-goto="missions">🎯 Nhiệm vụ</button>
         <button class="btn alt" data-goto="play">🎮 Chơi game</button>
@@ -103,21 +89,18 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
   </section>
 
-  <!-- MISSIONS -->
   <section id="tab-missions" class="tab-panel" hidden>
     <h2>Nhiệm vụ</h2>
     <div id="ms"></div>
   </section>
 
-  <!-- PLAY -->
   <section id="tab-play" class="tab-panel" hidden>
     <h2>🎮 Sòng bạc LolBot</h2>
     <p class="mu">Đặt cược xu để chơi. Kết quả do server xử lý công bằng.</p>
     <div class="card coinbar"><span class="mu">Số dư khả dụng</span><span class="big" style="font-size:20px">🪙 <span class="coins">0</span></span></div>
 
     <div class="card game" id="game-coin">
-      <h3>🪙 Tung xu</h3>
-      <p class="mu">Đoán mặt xu. Thắng x2 tiền cược.</p>
+      <h3>🪙 Tung xu</h3><p class="mu">Đoán mặt xu. Thắng x2 tiền cược.</p>
       <div class="stage"><span class="coin">🪙</span></div>
       <div class="bet-row">
         <input type="number" class="bet" min="1" placeholder="Số xu cược">
@@ -128,8 +111,7 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
 
     <div class="card game" id="game-dice">
-      <h3>🎲 Tài Xỉu</h3>
-      <p class="mu">3 xúc xắc. Tài: 11-17, Xỉu: 4-10. Bộ ba → nhà cái ăn.</p>
+      <h3>🎲 Tài Xỉu</h3><p class="mu">3 xúc xắc. Tài 11-17, Xỉu 4-10. Bộ ba → nhà cái ăn.</p>
       <div class="stage" id="dice-stage"><span class="die">⚀</span><span class="die">⚀</span><span class="die">⚀</span></div>
       <div class="bet-row">
         <input type="number" class="bet" min="1" placeholder="Số xu cược">
@@ -140,8 +122,7 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
 
     <div class="card game" id="game-wheel">
-      <h3>🎡 Vòng quay may mắn</h3>
-      <p class="mu">Hệ số: x0 / x0.5 / x1 / x2 / x3 / x5.</p>
+      <h3>🎡 Vòng quay may mắn</h3><p class="mu">Hệ số: x0 / x0.5 / x1 / x2 / x3 / x5.</p>
       <div class="stage"><div class="wheel" id="wheel"></div></div>
       <div class="bet-row">
         <input type="number" class="bet" min="1" placeholder="Số xu cược">
@@ -151,8 +132,7 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
 
     <div class="card game" id="game-guess">
-      <h3>🔢 Đoán số</h3>
-      <p class="mu">Đoán đúng số 1-100 sẽ nhận x50 tiền cược.</p>
+      <h3>🔢 Đoán số</h3><p class="mu">Đoán đúng số 1-100 nhận x50 tiền cược.</p>
       <div class="bet-row">
         <input type="number" class="bet" min="1" placeholder="Số xu cược">
         <button class="btn max" type="button">Tất cả</button>
@@ -162,8 +142,7 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
 
     <div class="card game" id="game-baucua">
-      <h3>🦀 Bầu cua</h3>
-      <p class="mu">Chọn 1 linh vật rồi đổ xúc xắc. Trúng x1 lần = ăn 1x tiền cược.</p>
+      <h3>🦀 Bầu cua</h3><p class="mu">Chọn 1 linh vật rồi đổ xúc xắc. Trúng n lần = ăn n× cược.</p>
       <div class="stage" id="bc-stage"><span class="die">🥥</span><span class="die">🥥</span><span class="die">🥥</span></div>
       <div class="animals" id="bc-animals">
         <button data-a="bau">🥥 Bầu</button>
@@ -181,13 +160,11 @@ h3{margin:0 0 6px;font-size:16px}
     </div>
   </section>
 
-  <!-- BOARD -->
   <section id="tab-board" class="tab-panel" hidden>
     <h2>🏆 Bảng xếp hạng</h2>
     <div id="board" class="card"><p class="mu">Đang tải...</p></div>
   </section>
 
-  <!-- MANAGE -->
   <section id="tab-manage" class="tab-panel" hidden>
     <h2>⚙️ Quản lý</h2>
     <div class="card">
@@ -203,12 +180,17 @@ h3{margin:0 0 6px;font-size:16px}
       </div>
     </div>
     <div class="card">
+      <h3>🔧 Kiểm tra kết nối</h3>
+      <p class="mu">Nếu game không chơi được, bấm nút này để xem endpoint nào lỗi.</p>
+      <button class="btn" id="diag-btn">Chạy chẩn đoán</button>
+      <div id="diag-out" class="diag" hidden></div>
+    </div>
+    <div class="card">
       <h3>Khác</h3>
       <button class="btn danger" id="logout-btn">Đăng xuất</button>
     </div>
   </section>
 
-  <!-- HISTORY -->
   <section id="tab-history" class="tab-panel" hidden>
     <h2>📜 Lịch sử nhận xu</h2>
     <ul id="log" class="card"></ul>
@@ -228,18 +210,22 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const DICE=["⚀","⚁","⚂","⚃","⚄","⚅"];
 const ANIMALS={bau:"🥥",cua:"🦀",tom:"🦐",ca:"🐟",ga:"🐔",nai:"🦌"};
 
+console.log("[LolBot] Script loaded");
+console.log("[LolBot] API =", API||"(chưa biết — sẽ đọc từ URL hash)");
+
 function show(id){["load","cap","login","app"].forEach(x=>$("#"+x).hidden=x!==id)}
 function fail(m){show("load");$("#lmsg").textContent=m;$("#spin").hidden=true}
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),3500)}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),4500)}
 
 async function call(path,data,tok){
+  console.log(`[API →] ${path}`,data||{});
   try{
     const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json","ngrok-skip-browser-warning":"1",...(tok?{Authorization:"Bearer "+tok}:{})},body:JSON.stringify(data||{})});
     const j=await r.json().catch(()=>({}));
+    console.log(`[API ←] ${path} ${r.status}`,j);
     if(!r.ok){
-      const e=new Error(j.error||"Lỗi "+r.status);
-      e.status=r.status;
-      throw e;
+      const e=new Error(j.error||`Lỗi ${r.status}`);
+      e.status=r.status;throw e;
     }
     return j;
   }catch(e){
@@ -269,9 +255,11 @@ function begin(r){
 function showLogin(msg){show("login");$("#lerr").textContent=msg||""}
 
 async function boot(){
+  console.log("[LolBot] Boot, search=",location.search,"hash=",location.hash);
   const h=new URLSearchParams(location.hash.slice(1)).get("api");
   if(!API&&h&&OKH.test(h)){API=h;try{localStorage.setItem("api",h)}catch{}}
   if(!API){try{const a=localStorage.getItem("api");if(a&&OKH.test(a))API=a}catch{}}
+  console.log("[LolBot] API sau khi khởi tạo =",API);
   let s;try{s=decodeURIComponent(location.search)}catch{s=location.search}
   const m=s.match(/^\?=(\d{1,5})\/bypass\?([\w.~-]+)/),q=new URLSearchParams(location.search);
   if(m){
@@ -345,6 +333,7 @@ function animate(to){
     $$(".coins").forEach(el=>el.textContent=fmt(v));
     if(k<1)requestAnimationFrame(f);
   })(t);
+  $$("#tab-play .bet").forEach(inp=>{inp.max=Math.max(1,to)});
 }
 
 async function refresh(){
@@ -360,8 +349,6 @@ async function refresh(){
   if(me.coins!==shown)animate(me.coins);
   if(!$("#ms").children.length)me.missions.forEach(card);
   me.missions.forEach(m=>ready[m.key]=Date.now()+m.ready_in*1000);
-  $("#home-missions").textContent=me.missions.length;
-  $("#home-last").textContent=(me.log&&me.log[0])?me.log[0].w:"—";
   $("#log").replaceChildren(...me.log.map(l=>{const li=document.createElement("li");li.textContent=`${new Date(l.t*1000).toLocaleTimeString("vi-VN")} · ${l.w}: ${l.n>=0?"+":""}${l.n} xu`;return li}));
   tick();
 }
@@ -410,20 +397,20 @@ async function loadBoard(){
     list.slice(0,50).forEach((u,i)=>{
       const row=document.createElement("div");row.className="row board-row";
       const rank=document.createElement("b");rank.className="rank";
-      rank.textContent=["🥇","🥈","🥉"][i]||("#"+(i+1));
-      row.append(rank);
+      rank.textContent=["🥇","🥈","🥉"][i]||("#"+(i+1));row.append(rank);
       const av=document.createElement("img");av.className="avat";
       if(u.avatar&&/^https:\/\/cdn\.discordapp\.com\//.test(u.avatar))av.src=u.avatar;
       row.append(av);
-      const nm=document.createElement("div");nm.style.flex="1";nm.textContent=u.name||"?";
-      row.append(nm);
-      const c=document.createElement("b");c.textContent="🪙 "+fmt(u.coins||0);
-      row.append(c);
+      const nm=document.createElement("div");nm.style.flex="1";nm.textContent=u.name||"?";row.append(nm);
+      const c=document.createElement("b");c.textContent="🪙 "+fmt(u.coins||0);row.append(c);
       el.append(row);
     });
   }catch(e){
     el.innerHTML="";
-    const p=document.createElement("p");p.className="mu";p.textContent=e.message;el.append(p);
+    const p=document.createElement("p");p.className="mu";
+    if(e.status===404)p.textContent="Bot chưa có API bảng xếp hạng. Cập nhật game_bot.py!";
+    else p.textContent=e.message;
+    el.append(p);
   }
 }
 
@@ -439,26 +426,46 @@ $("#redeem-btn").onclick=async()=>{
   }catch(e){toast(e.message)}
 };
 
+$("#diag-btn").onclick=async()=>{
+  const out=$("#diag-out");out.hidden=false;out.textContent="Đang kiểm tra...";
+  const lines=[];
+  const test=async(name,path,data,needAuth=true)=>{
+    try{
+      const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json","ngrok-skip-browser-warning":"1",...(needAuth?{Authorization:"Bearer "+auth}:{})},body:JSON.stringify(data||{})});
+      const j=await r.json().catch(()=>({}));
+      if(r.status===404)lines.push(`❌ ${name}: 404 — route không có trên bot`);
+      else if(r.status===403)lines.push(`❌ ${name}: 403 — CORS (kiểm tra web_url.txt)`);
+      else if(r.status===401)lines.push(`❌ ${name}: 401 — phiên hết hạn (gõ /web lại)`);
+      else if(r.ok||r.status===400)lines.push(`✅ ${name}: HTTP ${r.status}`);
+      else lines.push(`⚠️ ${name}: HTTP ${r.status} — ${j.error||"?"}`);
+    }catch(e){lines.push(`❌ ${name}: ${e.message}`)}
+  };
+  await test("Cấu hình","/api/config",{},false);
+  await test("Tài khoản","/api/me",{});
+  await test("Nhiệm vụ","/api/mission",{name:"__test__",action:"claim"});
+  await test("Game","/api/game",{game:"__test__"});
+  await test("BXH","/api/leaderboard",{});
+  await test("Redeem","/api/redeem",{code:"__test__"});
+  out.textContent=lines.join("\n");
+};
+
 function hardLogout(msg){
-  stopTimers();
-  auth=null;me=null;shown=0;
+  stopTimers();auth=null;me=null;shown=0;
   try{sessionStorage.clear()}catch{}
-  $("#ms").innerHTML="";$("#log").innerHTML="";
-  $("#board").innerHTML="";
+  $("#ms").innerHTML="";$("#log").innerHTML="";$("#board").innerHTML="";
   $$(".coins").forEach(el=>el.textContent="0");
   show("login");$("#lerr").textContent=msg||"Bạn đã đăng xuất.";
 }
 $("#logout-btn").onclick=()=>hardLogout("Bạn đã đăng xuất.");
 
 /* ============ GAMES ============ */
-let currentCoins=0;
-function syncCoinCap(){
-  currentCoins=shown;
-  $$("#tab-play .bet").forEach(inp=>{inp.max=Math.max(1,currentCoins)});
+function guard(btn,fn){
+  btn.onclick=async(...a)=>{
+    if(btn.disabled)return;
+    const old=btn.textContent;btn.disabled=true;btn.textContent="...";
+    try{await fn(...a)}finally{btn.disabled=false;btn.textContent=old}
+  };
 }
-// Patch animate để cập nhật cap mỗi lần coins đổi
-const _animate=animate;
-animate=function(to){_animate(to);syncCoinCap()};
 
 async function apiGame(game,payload){
   try{
@@ -467,30 +474,21 @@ async function apiGame(game,payload){
     return r;
   }catch(e){
     if(e.status===401){hardLogout("Phiên đã hết hạn. Hãy gõ /web để lấy link mới.");return null}
+    if(e.status===404){toast("⚠️ Bot chưa có API game (/api/game).\nHãy cập nhật game_bot.py rồi khởi động lại bot.");return null}
+    if(e.status===403){toast("⚠️ Lỗi CORS. Kiểm tra web_url.txt phải khớp địa chỉ trang web.");return null}
     toast(e.message);return null;
   }
 }
 
-// Nút "Tất cả" cho mỗi ô cược
+/* Nút "Tất cả" */
 $$("#tab-play .bet-row .max").forEach(btn=>{
   btn.onclick=()=>{
     const inp=btn.parentElement.querySelector(".bet");
-    if(!inp)return;
-    inp.value=Math.max(1,shown);
+    if(inp)inp.value=Math.max(1,shown);
   };
 });
 
-// Chống bấm nhiều lần
-function guard(btn,fn){
-  const orig=btn.onclick;
-  btn.onclick=async(...a)=>{
-    if(btn.disabled)return;
-    const old=btn.textContent;btn.disabled=true;btn.textContent="...";
-    try{await fn(...a)}finally{btn.disabled=false;btn.textContent=old}
-  };
-}
-
-// Coin flip
+/* Coin flip */
 $$("#game-coin [data-choice]").forEach(btn=>{
   guard(btn,async()=>{
     const bet=+$("#game-coin .bet").value;
@@ -507,7 +505,7 @@ $$("#game-coin [data-choice]").forEach(btn=>{
   });
 });
 
-// Dice (Tài Xỉu)
+/* Dice */
 $$("#game-dice [data-choice]").forEach(btn=>{
   guard(btn,async()=>{
     const bet=+$("#game-dice .bet").value;
@@ -524,14 +522,12 @@ $$("#game-dice [data-choice]").forEach(btn=>{
   });
 });
 
-// Wheel
+/* Wheel */
 guard($("#wheel-btn"),async()=>{
   const bet=+$("#game-wheel .bet").value;
   if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
   const wheel=$("#wheel");
-  wheel.style.transition="none";
-  wheel.style.transform="rotate(0deg)";
-  void wheel.offsetWidth;
+  wheel.style.transition="none";wheel.style.transform="rotate(0deg)";void wheel.offsetWidth;
   const spins=3+Math.random()*2;
   wheel.style.transition="transform 2.5s cubic-bezier(.15,.7,.2,1)";
   wheel.style.transform=`rotate(${360*spins}deg)`;
@@ -540,7 +536,7 @@ guard($("#wheel-btn"),async()=>{
   if(r)toast(r.msg||`🎡 Nhận được ${r.payout||0} xu!`);
 });
 
-// Guess
+/* Guess */
 guard($("#guess-btn"),async()=>{
   const root=$("#game-guess");
   const bet=+root.querySelector(".bet").value;
@@ -551,7 +547,7 @@ guard($("#guess-btn"),async()=>{
   if(r)toast(r.msg||(r.win?`🎉 Đúng! +${r.payout} xu`:`😢 Sai rồi! Số đúng: ${r.answer}`));
 });
 
-// Bầu cua
+/* Bầu cua */
 let bcChoice=null;
 $$("#bc-animals button").forEach(btn=>{
   btn.onclick=()=>{
@@ -563,8 +559,7 @@ guard($("#bc-btn"),async()=>{
   if(!bcChoice)return toast("Chọn 1 linh vật trước");
   const bet=+$("#game-baucua .bet").value;
   if(!bet||bet<1)return toast("Nhập số xu cược hợp lệ");
-  const stage=$("#bc-stage");
-  stage.classList.add("shake");
+  const stage=$("#bc-stage");stage.classList.add("shake");
   const r=await apiGame("baucua",{bet,choice:bcChoice});
   await sleep(900);
   stage.classList.remove("shake");
