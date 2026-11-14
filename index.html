@@ -1,0 +1,137 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>LolBot Coin</title>
+<style>
+:root{--bg:#0f1220;--card:#1a1f36;--tx:#eef0ff;--mu:#9aa3c7;--ac:#6c7bff;--ok:#38d39f}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5ff;--card:#fff;--tx:#161a33;--mu:#5d6590}}
+*{box-sizing:border-box}body{margin:0;padding:16px;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
+main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-size:18px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:10px 0;box-shadow:0 2px 12px #0003}
+.row{display:flex;align-items:center;gap:12px}.row>div:nth-child(2){flex:1}.mu{color:var(--mu);margin:2px 0;font-size:14px}
+.big{font-size:26px;font-weight:700;color:var(--ok)}#av{border-radius:50%;background:#0003}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;min-width:110px}
+.btn:disabled{opacity:.5;cursor:default}.panel{margin-top:10px}.qs{display:grid;gap:8px}
+.qs input{width:100px;padding:8px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit}
+.track{position:relative;height:36px;margin:22px 0}.track i{position:absolute;top:0;bottom:0;width:8px;margin-left:-4px;background:var(--ok);border-radius:4px;opacity:.85}
+.track input{position:absolute;inset:0;width:100%;margin:0;accent-color:var(--ac)}
+#log{list-style:none;margin:10px 0;font-size:14px}#log li{padding:4px 0;border-bottom:1px solid #8883}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ac);color:#fff;padding:12px 18px;border-radius:12px;transition:.3s;max-width:90%}
+#toast.on{transform:translate(-50%,0)}
+.spin{width:28px;height:28px;border:3px solid var(--mu);border-top-color:var(--ac);border-radius:50%;animation:r 1s linear infinite;margin-top:8px}@keyframes r{to{transform:rotate(360deg)}}
+</style></head><body><main>
+<h1>🪙 LolBot Coin</h1>
+<div id="load" class="card"><p id="lmsg">Đang kiểm tra link...</p><div id="spin" class="spin"></div></div>
+<div id="login" class="card" hidden><h2>Đăng nhập</h2><p class="mu">Đăng nhập bằng Discord để vào trang nhiệm vụ, hoặc gõ /web trong Discord để nhận link riêng.</p><button id="dc" class="btn" style="background:#5865f2">🔑 Đăng nhập bằng Discord</button><p id="lerr" class="mu"></p></div>
+<div id="cap" class="card" hidden><h2 id="hello"></h2>
+<p>Xác minh bạn không phải robot: kéo thanh trượt tới <b style="color:var(--ok)">vạch xanh</b>.</p>
+<div class="track"><i id="mk"></i><input type="range" id="sl" min="0" max="100" value="0"></div>
+<input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p></div>
+<div id="app" hidden>
+<div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span id="coins">0</span></div></div>
+<h2>Nhiệm vụ</h2><div id="ms"></div>
+<h2>Lịch sử nhận xu</h2><ul id="log" class="card"></ul></div>
+<div id="toast"></div></main>
+<script>
+// Nếu có địa chỉ API cố định (không đổi), điền vào đây. Để trống = đọc từ link bot gửi (#api=...).
+const FIXED_API="";
+const OKH=/^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|ngrok-free\.app|ngrok-free\.dev|ngrok\.app|ngrok\.io|loca\.lt)$/i;
+const $=s=>document.querySelector(s);
+let API=FIXED_API,link,auth,me,shown=0,t0=0,trace=[];const ready={},busy={};
+const fmt=n=>n.toLocaleString("vi-VN");
+const fmtT=s=>s>=3600?`${Math.floor(s/3600)}g ${Math.floor(s%3600/60)}p`:s>=60?`${Math.floor(s/60)}p ${s%60}s`:`${s}s`;
+function show(id){["load","cap","login","app"].forEach(x=>$("#"+x).hidden=x!==id)}
+function fail(m){show("load");$("#lmsg").textContent=m;$("#spin").hidden=true}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),3500)}
+async function call(path,data,tok){
+  try{
+    const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json","ngrok-skip-browser-warning":"1",...(tok?{Authorization:"Bearer "+tok}:{})},body:JSON.stringify(data||{})});
+    const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Lỗi "+r.status);return j;
+  }catch(e){if(e instanceof TypeError)throw new Error("Không kết nối được tới bot (bot đang tắt hoặc tunnel hết hạn).");throw e}
+}
+function begin(r){
+  link={id:r.id,code:r.code};$("#hello").textContent="Xin chào, "+r.name+"!";
+  if(r.state==="ready"){auth=r.auth;start()}else captcha(r.target);
+}
+function showLogin(msg){show("login");$("#lerr").textContent=msg||""}
+async function boot(){
+  const h=new URLSearchParams(location.hash.slice(1)).get("api");
+  if(!API&&h&&OKH.test(h)){API=h;try{localStorage.setItem("api",h)}catch{}}
+  if(!API){try{const a=localStorage.getItem("api");if(a&&OKH.test(a))API=a}catch{}}
+  let s;try{s=decodeURIComponent(location.search)}catch{s=location.search}
+  const m=s.match(/^\?=(\d{1,5})\/bypass\?([\w.~-]+)/),q=new URLSearchParams(location.search);
+  if(m){
+    if(!API)return showLogin("Thiếu địa chỉ API của bot (xem hướng dẫn cài đặt).");
+    try{
+      const r=await call("/api/open",{id:+m[1],code:m[2],auth:sessionStorage.getItem("a"+m[1])||""});
+      begin({...r,id:+m[1],code:m[2]});
+    }catch(e){showLogin(e.message)}
+  }else if(q.get("state")&&(q.get("code")||q.get("error")))oauthBack(q);
+  else showLogin();
+}
+async function oauthBack(q){
+  history.replaceState(null,"",location.pathname);
+  const st=sessionStorage.getItem("oauth_state");sessionStorage.removeItem("oauth_state");
+  if(q.get("error"))return showLogin("Bạn đã hủy đăng nhập Discord.");
+  if(!st||q.get("state")!==st)return showLogin("Phiên đăng nhập không khớp, hãy thử lại.");
+  if(!API)return showLogin("Thiếu địa chỉ API của bot.");
+  try{begin(await call("/api/oauth",{code:q.get("code")}))}catch(e){showLogin(e.message)}
+}
+$("#dc").onclick=async()=>{
+  if(!API)return showLogin("Chưa biết địa chỉ API của bot. Hãy mở web bằng lệnh /web trước (hoặc đặt FIXED_API trong file).");
+  try{
+    const c=await call("/api/config");
+    if(!c.oauth)return showLogin("Bot chưa bật đăng nhập Discord (thiếu client_secret.txt).");
+    const st=[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("");
+    sessionStorage.setItem("oauth_state",st);
+    location.href="https://discord.com/oauth2/authorize?"+new URLSearchParams({client_id:c.client_id,response_type:"code",redirect_uri:c.redirect_uri,scope:"identify",state:st,prompt:"none"});
+  }catch(e){showLogin(e.message)}
+};
+function captcha(t){show("cap");$("#mk").style.left=t+"%";$("#sl").value=0;trace=[];t0=0}
+$("#sl").addEventListener("input",e=>{if(!t0)t0=performance.now();trace.push({t:Math.round(performance.now()-t0),v:+e.target.value})});
+$("#sl").addEventListener("change",async e=>{
+  try{
+    const r=await call("/api/verify",{...link,value:+e.target.value,trace:trace.slice(-60),hp:$("#hp").value});
+    if(r.ok){auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
+    else{$("#cmsg").textContent=r.error;captcha(r.target)}
+  }catch(err){$("#cmsg").textContent=err.message}
+});
+async function start(){show("app");await refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);setInterval(tick,1000)}
+function animate(to){const from=shown,t=performance.now();shown=to;(function f(n){const k=Math.min(1,(n-t)/600);$("#coins").textContent=fmt(Math.round(from+(to-from)*k));if(k<1)requestAnimationFrame(f)})(t)}
+async function refresh(){
+  try{me=await call("/api/me",{},auth)}catch(e){return toast(e.message)}
+  $("#name").textContent=me.name;
+  if(/^https:\/\/cdn\.discordapp\.com\//.test(me.avatar))$("#av").src=me.avatar;
+  if(me.coins!==shown)animate(me.coins);
+  if(!$("#ms").children.length)me.missions.forEach(card);
+  me.missions.forEach(m=>ready[m.key]=Date.now()+m.ready_in*1000);
+  $("#log").replaceChildren(...me.log.map(l=>{const li=document.createElement("li");li.textContent=`${new Date(l.t*1000).toLocaleTimeString("vi-VN")} · ${l.w}: +${l.n} xu`;return li}));
+  tick();
+}
+function card(m){
+  const d=document.createElement("div");d.className="card m";d.id="m_"+m.key;
+  d.innerHTML='<div class="row"><div><b></b><p class="mu"></p></div><button class="btn"></button></div><div class="panel"></div>';
+  d.querySelector("b").textContent=m.title;d.querySelector("p").textContent=m.desc;
+  d.querySelector("button").onclick=()=>act(m.key);$("#ms").append(d);
+}
+function tick(){document.querySelectorAll(".m").forEach(d=>{const k=d.id.slice(2),s=Math.ceil(((ready[k]||0)-Date.now())/1000),b=d.querySelector("button");b.disabled=s>0||!!busy[k];b.textContent=s>0?fmtT(s):"Làm ngay"})}
+async function act(k){
+  const p=$("#m_"+k+" .panel"),post=a=>call("/api/mission",{name:k,action:a},auth);
+  try{
+    if(k==="stay"){
+      await post("start");busy[k]=1;let n=30;const b=document.createElement("button");b.className="btn";b.disabled=true;b.textContent="Còn 30 giây...";p.replaceChildren(b);
+      const iv=setInterval(()=>{n--;b.textContent=n>0?`Còn ${n} giây...`:"Nhận thưởng";if(n<=0){clearInterval(iv);b.disabled=false;b.onclick=()=>claim(k,{},p)}},1000);return;
+    }
+    if(k==="math"){
+      const r=await post("start");busy[k]=1;const f=document.createElement("div");f.className="qs";
+      r.questions.forEach(q=>{const l=document.createElement("label");l.textContent=q+" = ";const i=document.createElement("input");i.type="number";l.append(i);f.append(l)});
+      const b=document.createElement("button");b.className="btn";b.textContent="Gửi đáp án";
+      b.onclick=()=>claim(k,{answers:[...f.querySelectorAll("input")].map(i=>i.value)},p);f.append(b);p.replaceChildren(f);return;
+    }
+    await claim(k,{},p);
+  }catch(e){toast(e.message)}
+}
+async function claim(k,extra,p){
+  try{const r=await call("/api/mission",{name:k,action:"claim",...extra},auth);toast("🎉 "+r.msg)}catch(e){toast(e.message)}
+  busy[k]=0;p.replaceChildren();refresh();
+}
+boot();
+</script></body></html>
