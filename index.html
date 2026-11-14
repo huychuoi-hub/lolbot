@@ -29,14 +29,14 @@ main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-siz
 <div id="cap" class="card" hidden><h2 id="hello"></h2>
 <div id="slw"><p>Xác minh bạn không phải robot: kéo thanh trượt tới <b style="color:var(--ok)">vạch xanh</b>.</p>
 <div class="track"><i id="mk"></i><input type="range" id="sl" min="0" max="100" value="0"></div></div><div id="ts"></div>
-<input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p></div>
+<input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p><p class="mu"><a href="#" class="lo">Không phải bạn? Đăng xuất</a></p></div>
 <div id="app" hidden>
 <div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span id="coins">0</span></div></div>
 <nav id="tabs"><button data-t="nv" class="on">🎯 Nhiệm vụ</button><button data-t="play">🎮 Chơi</button><button data-t="bxh">🏆 BXH</button><button data-t="vi">💰 Ví</button></nav>
 <section id="t_nv"><div id="ms"></div></section>
 <section id="t_play" hidden><div id="games"></div></section>
 <section id="t_bxh" hidden><h2>Bảng xếp hạng</h2><ul id="board" class="card"></ul></section>
-<section id="t_vi" hidden><h2>Balo</h2><div id="bag" class="card"></div><h2>Lịch sử xu</h2><ul id="log" class="card"></ul></section></div>
+<section id="t_vi" hidden><h2>Balo</h2><div id="bag" class="card"></div><h2>Lịch sử xu</h2><ul id="log" class="card"></ul><h2>Tài khoản</h2><button class="btn lo">Đăng xuất và quên tài khoản này</button></section></div>
 <div id="toast"></div></main>
 <script>
 // Nếu có địa chỉ API cố định (không đổi), điền vào đây. Để trống = đọc từ link bot gửi (#api=...).
@@ -53,7 +53,7 @@ async function call(path,data,tok){
   try{
     const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json","ngrok-skip-browser-warning":"1",...(tok?{Authorization:"Bearer "+tok}:{})},body:JSON.stringify(data||{})});
     const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Lỗi "+r.status);return j;
-  }catch(e){if(e instanceof TypeError)throw new Error("Không kết nối được tới bot (bot đang tắt hoặc tunnel hết hạn).");throw e}
+  }catch(e){if(e instanceof TypeError){const n=new Error("Không kết nối được tới bot (bot đang tắt hoặc tunnel hết hạn).");n.net=1;throw n}throw e}
 }
 function begin(r){
   link={id:r.id,code:r.code};$("#hello").textContent="Xin chào, "+r.name+"!";
@@ -73,8 +73,19 @@ async function boot(){
       begin({...r,id:+m[1],code:m[2]});
     }catch(e){showLogin(e.message)}
   }else if(q.get("state")&&(q.get("code")||q.get("error")))oauthBack(q);
-  else showLogin();
+  else if(getRem()&&API){
+    try{begin(await call("/api/resume",{remember:getRem()}));$("#hello").textContent+=" (tài khoản đã lưu)"}
+    catch(e){if(!e.net)try{localStorage.removeItem("rem")}catch{}showLogin(e.message)}
+  }else showLogin();
 }
+const getRem=()=>{try{return localStorage.getItem("rem")||""}catch{return ""}};
+const saveRem=r=>{try{if(r.remember)localStorage.setItem("rem",r.remember)}catch{}};
+async function logout(){
+  try{await call("/api/logout",{remember:getRem()},auth)}catch{}
+  try{localStorage.removeItem("rem")}catch{}
+  sessionStorage.clear();location.href=location.pathname;
+}
+document.querySelectorAll(".lo").forEach(e=>e.onclick=ev=>{ev.preventDefault();logout()});
 async function oauthBack(q){
   history.replaceState(null,"",location.pathname);
   const st=sessionStorage.getItem("oauth_state");sessionStorage.removeItem("oauth_state");
@@ -104,16 +115,16 @@ function captcha(r){
 }
 async function onTs(token){
   try{
-    const r=await call("/api/verify",{...link,token});
-    if(r.ok){auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
+    const r=await call("/api/verify",{...link,token,remember:getRem()});
+    if(r.ok){saveRem(r);auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
     else{$("#cmsg").textContent=r.error;turnstile.reset(tsId)}
   }catch(e){$("#cmsg").textContent=e.message}
 }
 $("#sl").addEventListener("input",e=>{if(!t0)t0=performance.now();trace.push({t:Math.round(performance.now()-t0),v:+e.target.value})});
 $("#sl").addEventListener("change",async e=>{
   try{
-    const r=await call("/api/verify",{...link,value:+e.target.value,trace:trace.slice(-60),hp:$("#hp").value});
-    if(r.ok){auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
+    const r=await call("/api/verify",{...link,value:+e.target.value,trace:trace.slice(-60),hp:$("#hp").value,remember:getRem()});
+    if(r.ok){saveRem(r);auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
     else{$("#cmsg").textContent=r.error;captcha({mode:"slider",target:r.target})}
   }catch(err){$("#cmsg").textContent=err.message}
 });
