@@ -22,8 +22,8 @@ main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-siz
 <div id="load" class="card"><p id="lmsg">Đang kiểm tra link...</p><div id="spin" class="spin"></div></div>
 <div id="login" class="card" hidden><h2>Đăng nhập</h2><p class="mu">Đăng nhập bằng Discord để vào trang nhiệm vụ, hoặc gõ /web trong Discord để nhận link riêng.</p><button id="dc" class="btn" style="background:#5865f2">🔑 Đăng nhập bằng Discord</button><p id="lerr" class="mu"></p></div>
 <div id="cap" class="card" hidden><h2 id="hello"></h2>
-<p>Xác minh bạn không phải robot: kéo thanh trượt tới <b style="color:var(--ok)">vạch xanh</b>.</p>
-<div class="track"><i id="mk"></i><input type="range" id="sl" min="0" max="100" value="0"></div>
+<div id="slw"><p>Xác minh bạn không phải robot: kéo thanh trượt tới <b style="color:var(--ok)">vạch xanh</b>.</p>
+<div class="track"><i id="mk"></i><input type="range" id="sl" min="0" max="100" value="0"></div></div><div id="ts"></div>
 <input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p></div>
 <div id="app" hidden>
 <div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span id="coins">0</span></div></div>
@@ -49,7 +49,7 @@ async function call(path,data,tok){
 }
 function begin(r){
   link={id:r.id,code:r.code};$("#hello").textContent="Xin chào, "+r.name+"!";
-  if(r.state==="ready"){auth=r.auth;start()}else captcha(r.target);
+  if(r.state==="ready"){auth=r.auth;start()}else captcha(r);
 }
 function showLogin(msg){show("login");$("#lerr").textContent=msg||""}
 async function boot(){
@@ -85,13 +85,28 @@ $("#dc").onclick=async()=>{
     location.href="https://discord.com/oauth2/authorize?"+new URLSearchParams({client_id:c.client_id,response_type:"code",redirect_uri:c.redirect_uri,scope:"identify",state:st,prompt:"none"});
   }catch(e){showLogin(e.message)}
 };
-function captcha(t){show("cap");$("#mk").style.left=t+"%";$("#sl").value=0;trace=[];t0=0}
+let tsId=null;
+function loadTs(){return window.turnstile?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement("script");e.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";e.onload=ok;e.onerror=no;document.head.append(e)})}
+function captcha(r){
+  show("cap");$("#cmsg").textContent="";
+  const ts=r.mode==="turnstile";$("#slw").hidden=ts;$("#ts").hidden=!ts;
+  if(!ts){$("#mk").style.left=r.target+"%";$("#sl").value=0;trace=[];t0=0;return}
+  $("#cmsg").textContent="Xác minh bạn không phải robot:";$("#ts").replaceChildren();
+  loadTs().then(()=>{tsId=turnstile.render("#ts",{sitekey:r.sitekey,callback:onTs})}).catch(()=>$("#cmsg").textContent="Không tải được captcha, hãy tải lại trang.");
+}
+async function onTs(token){
+  try{
+    const r=await call("/api/verify",{...link,token});
+    if(r.ok){auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
+    else{$("#cmsg").textContent=r.error;turnstile.reset(tsId)}
+  }catch(e){$("#cmsg").textContent=e.message}
+}
 $("#sl").addEventListener("input",e=>{if(!t0)t0=performance.now();trace.push({t:Math.round(performance.now()-t0),v:+e.target.value})});
 $("#sl").addEventListener("change",async e=>{
   try{
     const r=await call("/api/verify",{...link,value:+e.target.value,trace:trace.slice(-60),hp:$("#hp").value});
     if(r.ok){auth=r.auth;sessionStorage.setItem("a"+link.id,auth);start()}
-    else{$("#cmsg").textContent=r.error;captcha(r.target)}
+    else{$("#cmsg").textContent=r.error;captcha({mode:"slider",target:r.target})}
   }catch(err){$("#cmsg").textContent=err.message}
 });
 async function start(){show("app");await refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);setInterval(tick,1000)}
