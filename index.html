@@ -19,6 +19,7 @@ main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-siz
 .spin{width:28px;height:28px;border:3px solid var(--mu);border-top-color:var(--ac);border-radius:50%;animation:r 1s linear infinite;margin-top:8px}@keyframes r{to{transform:rotate(360deg)}}
 #tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0}#tabs button{flex:1;white-space:nowrap;padding:10px 12px;border:0;border-radius:10px;background:var(--card);color:var(--tx);font:inherit;cursor:pointer}#tabs button.on{background:var(--ac);color:#fff}
 .g{display:grid;gap:10px}.g select,.g input{padding:10px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .gi{padding:10px;border-radius:8px;border:1px solid var(--mu);background:transparent;color:inherit;font:inherit;margin:6px 6px 0 0}
 #gr{font-size:18px;margin:12px 0 0;min-height:1.5em}#board{list-style:none;padding:16px}#board li{padding:6px 0}#board li.me{color:var(--ok);font-weight:700}
@@ -32,10 +33,11 @@ main{max-width:680px;margin:0 auto}h1{margin:8px 0}h2{margin:20px 0 4px;font-siz
 <input id="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px"><p id="cmsg" class="mu"></p><p class="mu"><a href="#" class="lo">Không phải bạn? Đăng xuất</a></p></div>
 <div id="app" hidden>
 <div class="card row"><img id="av" alt="" width="48" height="48"><div><b id="name"></b><div class="mu">Số dư hiện tại</div></div><div class="big">🪙 <span id="coins">0</span></div></div>
-<nav id="tabs"><button data-t="nv" class="on">🎯 Nhiệm vụ</button><button data-t="play">🎮 Chơi</button><button data-t="bxh">🏆 BXH</button><button data-t="vi">💰 Ví</button></nav>
+<nav id="tabs"><button data-t="nv" class="on">🎯 Nhiệm vụ</button><button data-t="play">🎮 Chơi</button><button data-t="bxh">🏆 BXH</button><button data-t="lk">🔗 Vượt link</button><button data-t="vi">💰 Ví</button></nav>
 <section id="t_nv"><div id="ms"></div></section>
 <section id="t_play" hidden><div id="games"></div></section>
 <section id="t_bxh" hidden><h2>Bảng xếp hạng</h2><ul id="board" class="card"></ul></section>
+<section id="t_lk" hidden><h2>Vượt link kiếm xu</h2><div id="lks"></div><p class="mu">Bấm Lấy link và mở link, xác minh captcha, hoàn thành trang rút gọn, rồi quay về và xác minh captcha lần nữa để nhận xu. Mỗi nhà cung cấp hồi 10 phút, tối đa 10 lần mỗi ngày.</p></section>
 <section id="t_vi" hidden><h2>Balo</h2><div id="bag" class="card"></div><h2>Lịch sử xu</h2><ul id="log" class="card"></ul><h2>Tài khoản</h2><button class="btn lo">Đăng xuất và quên tài khoản này</button></section></div>
 <div id="toast"></div></main>
 <script>
@@ -61,6 +63,12 @@ function begin(r){
 }
 function showLogin(msg){show("login");$("#lerr").textContent=msg||""}
 async function boot(){
+  const rm=location.pathname.match(/\/(bypass|check)\/?$/);
+  if(rm){
+    let t=location.search.slice(1);try{t=decodeURIComponent(t)}catch{}
+    if(t)sessionStorage.setItem("act",JSON.stringify({k:rm[1],t}));
+    history.replaceState(null,"",location.pathname.replace(/\/(bypass|check)\/?$/,"/")+location.hash);
+  }
   const h=new URLSearchParams(location.hash.slice(1)).get("api");
   if(!API&&h&&OKH.test(h)){API=h;try{localStorage.setItem("api",h)}catch{}}
   if(!API){try{const a=localStorage.getItem("api");if(a&&OKH.test(a))API=a}catch{}}
@@ -128,7 +136,16 @@ $("#sl").addEventListener("change",async e=>{
     else{$("#cmsg").textContent=r.error;captcha({mode:"slider",target:r.target})}
   }catch(err){$("#cmsg").textContent=err.message}
 });
-async function start(){show("app");await refresh();setInterval(()=>{if(!document.hidden)refresh()},5000);setInterval(tick,1000)}
+async function runAct(){
+  const a=sessionStorage.getItem("act");if(!a)return;sessionStorage.removeItem("act");
+  let o;try{o=JSON.parse(a)}catch{return}
+  document.querySelector('#tabs button[data-t="lk"]').click();
+  try{
+    if(o.k==="bypass"){toast("Đã xác minh! Đang chuyển tới link rút gọn...");const r=await call("/api/linkgo",{t:o.t},auth);location.href=r.url}
+    else{const r=await call("/api/linkclaim",{t:o.t},auth);toast("🎉 "+r.msg);refresh()}
+  }catch(e){toast(e.message)}
+}
+async function start(){show("app");await refresh();runAct();setInterval(()=>{if(!document.hidden)refresh()},5000);setInterval(tick,1000)}
 function animate(to){const from=shown,t=performance.now();shown=to;(function f(n){const k=Math.min(1,(n-t)/600);$("#coins").textContent=fmt(Math.round(from+(to-from)*k));if(k<1)requestAnimationFrame(f)})(t)}
 async function refresh(){
   try{me=await call("/api/me",{},auth)}catch(e){return toast(e.message)}
@@ -170,7 +187,7 @@ async function claim(k,extra,p){
 }
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
-  ["nv","play","bxh","vi"].forEach(t=>$("#t_"+t).hidden=t!==b.dataset.t);
+  ["nv","play","bxh","lk","vi"].forEach(t=>$("#t_"+t).hidden=t!==b.dataset.t);
   if(b.dataset.t==="bxh")loadBoard();
 });
 async function loadBoard(){
@@ -198,6 +215,19 @@ GAMES.forEach(([k,t,d])=>{
   c.innerHTML='<div class="row"><div><b></b><p class="mu"></p></div><button class="btn">Chơi</button></div><div class="panel"></div>';
   c.querySelector("b").textContent=t;c.querySelector("p").textContent=d;
   const b=c.querySelector("button"),p=c.querySelector(".panel");b.onclick=()=>playGame(k,p,b);$("#games").append(c);
+});
+[["link4m","Link4m"],["yeumoney","YeuMoney"]].forEach(([k,t])=>{
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML='<div class="row"><div><b></b><p class="mu">Hoàn thành link rút gọn để nhận xu</p></div><button class="btn">Lấy link</button></div><div class="panel"></div>';
+  c.querySelector("b").textContent="🔗 "+t;
+  const b=c.querySelector("button"),p=c.querySelector(".panel");
+  b.onclick=async()=>{
+    try{
+      const r=await call("/api/linkstart",{provider:k},auth),a=document.createElement("a");
+      a.className="btn";a.href=r.url;a.target="_blank";a.rel="noopener";a.textContent=`Mở link (+${r.reward} xu)`;const u=document.createElement("p");u.className="mu";u.style.wordBreak="break-all";u.textContent=r.url;p.replaceChildren(a,u);
+    }catch(e){toast(e.message)}
+  };
+  $("#lks").append(c);
 });
 boot();
 </script></body></html>
